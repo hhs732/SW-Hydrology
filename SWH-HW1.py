@@ -83,7 +83,7 @@ plt.plot(ProbExcRankDayP, MaxDayPrecipDescend['Max Daily Precip (mm)'])
 fig1.autofmt_xdate()
 plt.title('Probability of Exceedance for Max Daily Precipitation (mm)')
 plt.xlabel('Probability of Exceedance')
-plt.ylabel('Max Daily Precipitation (mm)')
+plt.ylabel('Sorted Max Daily Precipitation (mm)')
 plt.xticks(np.arange(0, 1, 0.1))
 plt.savefig('ProbExcDailyPrecip.png')
 
@@ -92,7 +92,7 @@ plt.plot(ProbExcRankMonP, MaxMonPrecipDescend['Max Monthly Precip (mm)'])
 fig1.autofmt_xdate()
 plt.title('Probability of Exceedance for Max Monthly Precipitation (mm)')
 plt.xlabel('Probability of Exceedance')
-plt.ylabel('Max Monthly Precipitation (mm)')
+plt.ylabel('Sorted Max Monthly Precipitation (mm)')
 plt.xticks(np.arange(0, 1, 0.1))
 plt.savefig('ProbExcMonPrecip.png')
 
@@ -110,18 +110,64 @@ ReturnPeriodMonP = 1/ProbExcRankMonP
 #These should have the return period on the x-axis and the sorted precipitation 
 #values in descending order on the y-axis. 
 
+fig1 = plt.figure()
+plt.plot(ReturnPeriodDayP, MaxDayPrecipDescend['Max Daily Precip (mm)'])
+plt.title('Return Period for Max Daily Precipitation (mm)')
+plt.xlabel('Return Period (Year)')
+plt.ylabel('Sorted Max Daily Precipitation (mm)')
+plt.xticks(np.arange(0, max(ReturnPeriodDayP), 2))
+plt.savefig('ReturnPerDailyPrecip.png')
+
+fig1 = plt.figure()
+plt.plot(ReturnPeriodMonP, MaxMonPrecipDescend['Max Monthly Precip (mm)'])
+plt.title('Return Period for Max Monthly Precipitation (mm)')
+plt.xlabel('Return Period (Year)')
+plt.ylabel('Sorted Max Monthly Precipitation (mm)')
+plt.xticks(np.arange(0, max(ReturnPeriodMonP), 2))
+plt.savefig('ReturnPerMonPrecip.png')
+
+#%%
+#### H)
+#Do a linear interpolation and use it to estimate the Maximum Monthly 
+#Precipitation for a ten year return period. Then, draw a horizontal line 
+#corresponding that value in the Maximum Monthly Precipitation plot you made 
+#in part a). For how to draw a horizontal line on a graph, see here:
+#matplotlib.pyplot.plot((1975,2016),(x,x),'k-')
+#where x is replaced by the value you found for the 10 year return period.
+fig2 = plt.figure()
+plt.plot(Dates, PrecipDataFrame['Max Monthly Precip (mm)'])
+fig2.autofmt_xdate()
+plt.title('Max Monthly Precipitation (mm) from 1979 to 2017')
+plt.xlabel('Year')
+plt.ylabel('Max Monthly Precip (mm)')
+plt.xticks(np.arange(min(Dates['Water Year']), max(Dates['Water Year']), 3))
+#plt.savefig('MaxMonthlyPrecip.png')
+
+DescendMonPrecip = pd.DataFrame(MaxMonPrecipDescend['Max Monthly Precip (mm)'])
+DescendMonPrecip.set_index(ReturnPeriodMonP,inplace=True)
+PrecipMonT10 = DescendMonPrecip['Max Monthly Precip (mm)'][10]
+plt.plot((1975,2016),(PrecipMonT10,PrecipMonT10),'k-')
+
+fig1 = plt.figure()
+plt.plot(ReturnPeriodMonP, MaxMonPrecipDescend['Max Monthly Precip (mm)'])
+plt.title('Return Period for Max Monthly Precipitation (mm)')
+plt.xlabel('Return Period (Year)')
+plt.ylabel('Sorted Max Monthly Precipitation (mm)')
+plt.xticks(np.arange(0, max(ReturnPeriodMonP), 2))
+#plt.savefig('ReturnPerMonPrecip.png')
+plt.plot((0,41),(PrecipMonT10,PrecipMonT10),'k-')
 
 
+#%%
+DescendDayPrecipCol = np.column_stack([ReturnPeriodDayP,MaxDayPrecipDescend['Max Daily Precip (mm)']])
+DescendDayPrecip = pd.DataFrame(DescendDayPrecipCol,columns=['Return Period','Sorted Daily Precip (mm)'])
 
+DescendMonPrecipCol = np.column_stack([ReturnPeriodMonP,MaxMonPrecipDescend['Max Monthly Precip (mm)']])
+DescendMonPrecip2 = pd.DataFrame(DescendMonPrecipCol,columns=['Return Period','Sorted Monthly Precip (mm)'])
 
-
-
-
-
-
-
-
-
+#for value in DescendMonPrecip['Return Period']:
+#    if value==10:
+#        PrecipT10 = value
 
 
 
