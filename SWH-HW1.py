@@ -131,9 +131,7 @@ plt.savefig('ReturnPerMonPrecip.png')
 #Do a linear interpolation and use it to estimate the Maximum Monthly 
 #Precipitation for a ten year return period. Then, draw a horizontal line 
 #corresponding that value in the Maximum Monthly Precipitation plot you made 
-#in part a). For how to draw a horizontal line on a graph, see here:
-#matplotlib.pyplot.plot((1975,2016),(x,x),'k-')
-#where x is replaced by the value you found for the 10 year return period.
+#in part a). 
 fig2 = plt.figure()
 plt.plot(Dates, PrecipDataFrame['Max Monthly Precip (mm)'])
 fig2.autofmt_xdate()
