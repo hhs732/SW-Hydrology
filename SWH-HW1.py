@@ -1,8 +1,9 @@
-#Plotting and Calculating Return Periods for Daily and Monthly Max Precipitation.
+#Plotting and Calculating Return Time for Daily and Monthly Max Precipitation.
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import scipy.stats as scistat
+from scipy.interpolate import interp1d
 
 #### A)
 #Plotting Maximum Daily and Monthly Precipitation.
@@ -111,11 +112,11 @@ plt.savefig('ReturnPerMonPrecip.png')
 
 #%%
 #### H)
-#Maximum Monthly Precipitation for a ten year return period.
+#Maximum Monthly Precipitation for a ten year return time.
 
 DescendMonPrecip = pd.DataFrame(MaxMonPrecipDescend['Max Monthly Precip (mm)'])
 DescendMonPrecip.set_index(ReturnPeriodMonP,inplace=True)
-PrecipMonT10 = DescendMonPrecip['Max Monthly Precip (mm)'][10]
+PrecipMonRT10 = DescendMonPrecip['Max Monthly Precip (mm)'][10]
 
 fig2 = plt.figure()
 plt.plot(Dates, PrecipDataFrame['Max Monthly Precip (mm)'])
@@ -124,7 +125,7 @@ plt.title('Max Monthly Precipitation (mm) from 1979 to 2017')
 plt.xlabel('Year')
 plt.ylabel('Max Monthly Precip (mm)')
 plt.xticks(np.arange(min(Dates['Water Year'])-1, 1+max(Dates['Water Year']), 3))
-plt.plot((1976,2017),(PrecipMonT10,PrecipMonT10),'k-')
+plt.plot((1976,2017),(PrecipMonRT10,PrecipMonRT10),'k-')
 plt.savefig('RT10-MonPrecip.png')
 
 fig1 = plt.figure()
@@ -133,21 +134,37 @@ plt.title('Return Period for Max Monthly Precipitation (mm)')
 plt.xlabel('Return Period (Year)')
 plt.ylabel('Sorted Max Monthly Precipitation (mm)')
 plt.xticks(np.arange(0, max(ReturnPeriodMonP), 3))
-plt.plot((0,1+np.size(PrecipDataFrame['Max Monthly Precip (mm)'])),(PrecipMonT10,PrecipMonT10),'k-')
-
+plt.plot((0,1+np.size(PrecipDataFrame['Max Monthly Precip (mm)'])),(PrecipMonRT10,PrecipMonRT10),'k-')
 
 #%%
-#Maximum Monthly Precipitation for a ten year return period
-DescendDayPrecipCol = np.column_stack([ReturnPeriodDayP,MaxDayPrecipDescend['Max Daily Precip (mm)']])
-DescendDayPrecip = pd.DataFrame(DescendDayPrecipCol,columns=['Return Period','Sorted Daily Precip (mm)'])
+#Maximum Daily and Monthly Precipitation for specific return time.
 
-DescendMonPrecipCol = np.column_stack([ReturnPeriodMonP,MaxMonPrecipDescend['Max Monthly Precip (mm)']])
-DescendMonPrecip2 = pd.DataFrame(DescendMonPrecipCol,columns=['Return Period','Sorted Monthly Precip (mm)'])
+DescMonPrecipCol = np.column_stack([ReturnPeriodMonP,MaxMonPrecipDescend['Max Monthly Precip (mm)']])
+DescMonPrecip = pd.DataFrame(DescMonPrecipCol,columns=['ReturnTime','Sorted Monthly Precip (mm)'])
 
-#for value in DescendMonPrecip['Return Period']:
-#    if value==10:
-#        PrecipT10 = value
+SPMonReturnTime = 10
+for value in DescMonPrecip['ReturnTime']:
+    if value==SPMonReturnTime:
+        IndexRTimeM = DescMonPrecip.ReturnTime[DescMonPrecip.ReturnTime == value].index.tolist()
+        IndexRtrnTimeM = np.array([float(i) for i in IndexRTimeM]) 
+        PrecipMonRT = DescMonPrecip['Sorted Monthly Precip (mm)'][IndexRtrnTimeM]
+print (PrecipMonRT)
 
+DescDayPrecipCol = np.column_stack([ReturnPeriodDayP,MaxDayPrecipDescend['Max Daily Precip (mm)']])
+DescDayPrecip = pd.DataFrame(DescDayPrecipCol,columns=['ReturnTime','Sorted Daily Precip (mm)'])
+
+SPDayReturnTime = 10
+for value in DescDayPrecip['ReturnTime']:
+    if value==SPDayReturnTime:
+        IndexRTimeD = DescDayPrecip.ReturnTime[DescDayPrecip.ReturnTime == value].index.tolist()
+        IndexRTimeDF = np.array([float(i) for i in IndexRTimeD]) 
+        PrecipDayRT = DescDayPrecip['Sorted Daily Precip (mm)'][IndexRTimeDF]
+    else:
+        IntrpltRtrnTime = DescDayPrecip['ReturnTime']
+        IntrpltDayPrecip = DescDayPrecip['Sorted Daily Precip (mm)']
+        IntrpltFunction = interp1d(IntrpltRtrnTime, IntrpltDayPrecip)
+        PrecipDayRT = IntrpltFunction(SPDayReturnTime)
+print (PrecipDayRT)
 
 
 
