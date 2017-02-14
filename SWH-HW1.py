@@ -7,13 +7,11 @@ from scipy.interpolate import interp1d
 
 #### A)
 #Plotting Maximum Daily and Monthly Precipitation.
-
 PrecipitationData = pd.read_csv('independencelake.csv')
 Dates = pd.DataFrame(PrecipitationData['Water Year'])
 PrecipDataCol = np.column_stack([PrecipitationData['Max Daily Precip (mm)'],PrecipitationData['Max Monthly Precip (mm)']])
 PrecipDataFrame = pd.DataFrame(PrecipDataCol,columns=['Max Daily Precip (mm)','Max Monthly Precip (mm)'])
 PrecipDataFrame.set_index([Dates['Water Year']],inplace=True)
-#print(PrecipDataFrame)
 
 fig1 = plt.figure()
 plt.plot(Dates, PrecipDataFrame['Max Daily Precip (mm)'])
@@ -36,7 +34,6 @@ plt.savefig('MaxMonthlyPrecip.png')
 #%%
 #### B) 
 #Dataframe for sorted Maximum Daily and Monthly Precipitation in ascending and descending order.
-
 MaxDayPAscend = PrecipDataFrame.sort_values(['Max Daily Precip (mm)'])
 MaxDayPrecipAscend = MaxDayPAscend.drop('Max Monthly Precip (mm)', axis=1)
 MaxDayPDescend = PrecipDataFrame.sort_values(['Max Daily Precip (mm)'])[::-1]
@@ -49,7 +46,6 @@ MaxMonPrecipDescend = MaxMonPDescend.drop('Max Daily Precip (mm)', axis=1)
 #%%
 #### C) 
 #Ranks for the Maximum Daily and Monthly Precipitation.
-
 RankMaxDayPrecip = scistat.rankdata(MaxDayPrecipAscend,method='average')
 RankMaxMonPrecip = scistat.rankdata(MaxMonPrecipAscend,method='average')
 RankDayPrecip = scistat.rankdata(PrecipDataFrame['Max Daily Precip (mm)'],method='average')
@@ -64,7 +60,6 @@ ProbExcRankMonP = RankMaxMonPrecip/(1+np.size(PrecipDataFrame['Max Monthly Preci
 #%%
 #### E) 
 #Plotting probability of exceedance for the sorted daily and monthly precipitation in descending order.
-
 fig1 = plt.figure()
 plt.plot(ProbExcRankDayP, MaxDayPrecipDescend['Max Daily Precip (mm)'])
 fig1.autofmt_xdate()
@@ -86,14 +81,12 @@ plt.savefig('ProbExcMonPrecip.png')
 #%%
 #### F)
 #Return Period for daily and monthly Max precipitation. 
-
 ReturnPeriodDayP = 1/ProbExcRankDayP
 ReturnPeriodMonP = 1/ProbExcRankMonP
 
 #%%
 #### G)
 #Plotting Return periods for Daily and Monthly Max Precipitation. 
-
 fig1 = plt.figure()
 plt.plot(ReturnPeriodDayP, MaxDayPrecipDescend['Max Daily Precip (mm)'])
 plt.title('Return Period for Max Daily Precipitation (mm)')
@@ -113,7 +106,6 @@ plt.savefig('ReturnPerMonPrecip.png')
 #%%
 #### H)
 #Maximum Monthly Precipitation for a ten year return time.
-
 DescendMonPrecip = pd.DataFrame(MaxMonPrecipDescend['Max Monthly Precip (mm)'])
 DescendMonPrecip.set_index(ReturnPeriodMonP,inplace=True)
 PrecipMonRT10 = DescendMonPrecip['Max Monthly Precip (mm)'][10]
@@ -138,7 +130,6 @@ plt.plot((0,1+np.size(PrecipDataFrame['Max Monthly Precip (mm)'])),(PrecipMonRT1
 
 #%%
 #Maximum Daily and Monthly Precipitation for specific return time.
-
 DescMonPrecipCol = np.column_stack([ReturnPeriodMonP,MaxMonPrecipDescend['Max Monthly Precip (mm)']])
 DescMonPrecip = pd.DataFrame(DescMonPrecipCol,columns=['ReturnTime','Sorted Monthly Precip (mm)'])
 
