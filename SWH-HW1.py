@@ -129,7 +129,7 @@ plt.xticks(np.arange(0, max(ReturnPeriodMonP), 3))
 plt.plot((0,1+np.size(PrecipDataFrame['Max Monthly Precip (mm)'])),(PrecipMonRT10,PrecipMonRT10),'k-')
 
 #%%
-#Maximum Daily and Monthly Precipitation for specific return time.
+#Maximum Monthly Precipitation for specific return time.
 DescMonPrecipCol = np.column_stack([ReturnPeriodMonP,MaxMonPrecipDescend['Max Monthly Precip (mm)']])
 DescMonPrecip = pd.DataFrame(DescMonPrecipCol,columns=['ReturnTime','Sorted Monthly Precip (mm)'])
 
@@ -144,19 +144,43 @@ for value in DescMonPrecip['ReturnTime']:
         PrecipMonRT = (PrecipMonRTE+PrecipMonRTL1+PrecipMonRTM1)/3
 print (PrecipMonRT)
 
+fig3 = plt.figure()
+plt.plot(Dates, PrecipDataFrame['Max Monthly Precip (mm)'])
+fig3.autofmt_xdate()
+plt.title('Max Monthly Precipitation (mm) and 10 Years Precipitation Value')
+plt.xlabel('Year')
+plt.ylabel('Max Monthly Precip (mm)')
+plt.xticks(np.arange(min(Dates['Water Year'])-1, 1+max(Dates['Water Year']), 3))
+plt.plot((1976,2017),(PrecipMonRT,PrecipMonRT),'k-')
+plt.savefig('SPRT-MonPrecip.png')
+
+fig4 = plt.figure()
+plt.plot(ReturnPeriodMonP, MaxMonPrecipDescend['Max Monthly Precip (mm)'])
+fig3.autofmt_xdate()
+plt.title('Return Period for Max Monthly Precipitation (mm) and 10 Years Precipitation')
+plt.xlabel('Return Period (Year)')
+plt.ylabel('Sorted Max Monthly Precipitation (mm)')
+plt.xticks(np.arange(0, max(ReturnPeriodMonP), 3))
+plt.plot((0,1+np.size(PrecipDataFrame['Max Monthly Precip (mm)'])),(PrecipMonRT,PrecipMonRT),'k-')
+
+#%%
+#Maximum Daily Precipitation for specific return time.
 DescDayPrecipCol = np.column_stack([ReturnPeriodDayP,MaxDayPrecipDescend['Max Daily Precip (mm)']])
 DescDayPrecip = pd.DataFrame(DescDayPrecipCol,columns=['ReturnTime','Sorted Daily Precip (mm)'])
 
 Holder1 = []
-SPDayReturnTime = 10
+SPDayReturnTime = 6
 for value in DescDayPrecip['ReturnTime']:
 #    print(value)
 #    print(SPDayReturnTime)
     if value==SPDayReturnTime:
         IndexRTimeD = DescDayPrecip.ReturnTime[DescDayPrecip.ReturnTime == value].index.tolist()
         IndexRTimeDF = np.array([float(i) for i in IndexRTimeD]) 
-        PrecipDayRT = DescDayPrecip['Sorted Daily Precip (mm)'][IndexRTimeDF]
-        break                            
+        PrecipDayRTE = np.array(DescDayPrecip['Sorted Daily Precip (mm)'][IndexRTimeDF])
+        PrecipDayRTM = np.array(DescDayPrecip['Sorted Daily Precip (mm)'][IndexRTimeDF+1])
+        PrecipDayRTL = np.array(DescDayPrecip['Sorted Daily Precip (mm)'][IndexRTimeDF-1])
+        PrecipDayRT = (PrecipDayRTE+PrecipDayRTL+PrecipDayRTM)/3
+        break
     else:
         Holder1.append(value-SPDayReturnTime)
         Holder2 = min (Holder1, key=lambda x:abs(x))
@@ -177,6 +201,28 @@ for value in DescDayPrecip['ReturnTime']:
 #        IntrpltFunction = interp1d(IntrpltRtrnTime, IntrpltDayPrecip)
 #        PrecipDayRT = IntrpltFunction(SPDayReturnTime)
 print (PrecipDayRT)
+
+fig5 = plt.figure()
+plt.plot(Dates, PrecipDataFrame['Max Daily Precip (mm)'])
+fig5.autofmt_xdate()
+plt.title('Max Daily Precipitation (mm) and SP-Year Precipitation Value')
+plt.xlabel('Year')
+plt.ylabel('Max Daily Precip (mm)')
+plt.xticks(np.arange(min(Dates['Water Year'])-1, 1+max(Dates['Water Year']), 3))
+plt.plot((1976,2017),(PrecipDayRT,PrecipDayRT),'k-')
+plt.savefig('SPRT-DayPrecip.png')
+
+fig6 = plt.figure()
+plt.plot(ReturnPeriodDayP, MaxDayPrecipDescend['Max Daily Precip (mm)'])
+fig6.autofmt_xdate()
+plt.title('Return Period for Max Daily Precipitation (mm) and SP-Year Precipitation')
+plt.xlabel('Return Period (Year)')
+plt.ylabel('Sorted Max Daily Precipitation (mm)')
+plt.xticks(np.arange(0, max(ReturnPeriodDayP), 3))
+plt.plot((0,1+np.size(PrecipDataFrame['Max Daily Precip (mm)'])),(PrecipDayRT,PrecipDayRT),'k-')
+
+
+
 
 
 
