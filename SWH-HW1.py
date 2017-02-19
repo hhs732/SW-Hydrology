@@ -3,7 +3,7 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import scipy.stats as scistat
-from scipy.interpolate import interp1d
+#from scipy.interpolate import interp1d
 
 #### A)
 #Plotting Maximum Daily and Monthly Precipitation.
@@ -138,23 +138,44 @@ for value in DescMonPrecip['ReturnTime']:
     if value==SPMonReturnTime:
         IndexRTimeM = DescMonPrecip.ReturnTime[DescMonPrecip.ReturnTime == value].index.tolist()
         IndexRtrnTimeM = np.array([float(i) for i in IndexRTimeM]) 
-        PrecipMonRT = DescMonPrecip['Sorted Monthly Precip (mm)'][IndexRtrnTimeM]
+        PrecipMonRTE = np.array(DescMonPrecip['Sorted Monthly Precip (mm)'][IndexRtrnTimeM])
+        PrecipMonRTL1 = np.array(DescMonPrecip['Sorted Monthly Precip (mm)'][IndexRtrnTimeM-1])
+        PrecipMonRTM1 = np.array(DescMonPrecip['Sorted Monthly Precip (mm)'][IndexRtrnTimeM+1])
+        PrecipMonRT = (PrecipMonRTE+PrecipMonRTL1+PrecipMonRTM1)/3
 print (PrecipMonRT)
 
 DescDayPrecipCol = np.column_stack([ReturnPeriodDayP,MaxDayPrecipDescend['Max Daily Precip (mm)']])
 DescDayPrecip = pd.DataFrame(DescDayPrecipCol,columns=['ReturnTime','Sorted Daily Precip (mm)'])
 
+Holder1 = []
 SPDayReturnTime = 10
 for value in DescDayPrecip['ReturnTime']:
+#    print(value)
+#    print(SPDayReturnTime)
     if value==SPDayReturnTime:
         IndexRTimeD = DescDayPrecip.ReturnTime[DescDayPrecip.ReturnTime == value].index.tolist()
         IndexRTimeDF = np.array([float(i) for i in IndexRTimeD]) 
         PrecipDayRT = DescDayPrecip['Sorted Daily Precip (mm)'][IndexRTimeDF]
+        break                            
     else:
-        IntrpltRtrnTime = DescDayPrecip['ReturnTime']
-        IntrpltDayPrecip = DescDayPrecip['Sorted Daily Precip (mm)']
-        IntrpltFunction = interp1d(IntrpltRtrnTime, IntrpltDayPrecip)
-        PrecipDayRT = IntrpltFunction(SPDayReturnTime)
+        Holder1.append(value-SPDayReturnTime)
+        Holder2 = min (Holder1, key=lambda x:abs(x))
+        IndexHolder1 = Holder2 + SPDayReturnTime
+        if value == IndexHolder1: 
+            IndexRTimeD = DescDayPrecip.ReturnTime[DescDayPrecip.ReturnTime == value].index.tolist()
+            IndexRTimeDF = np.array([float(i) for i in IndexRTimeD])
+            PrecipDayRTE = np.array(DescDayPrecip['Sorted Daily Precip (mm)'][IndexRTimeDF])
+            #PrecipDayRTEMean = np.mean(PrecipDayRTE)
+            PrecipDayRTL = np.array(DescDayPrecip['Sorted Daily Precip (mm)'][IndexRTimeDF-1])
+            PrecipDayRTL1 =  max (PrecipDayRTL, key=lambda x:abs(x))
+            PrecipDayRTM = np.array(DescDayPrecip['Sorted Daily Precip (mm)'][IndexRTimeDF+1])
+            PrecipDayRTM1 = min (PrecipDayRTM, key=lambda x:abs(x))
+            PrecipDayRT = (PrecipDayRTM1+PrecipDayRTL1+np.mean(PrecipDayRTE))/3
+
+#        IntrpltRtrnTime = DescDayPrecip['ReturnTime']
+#        IntrpltDayPrecip = DescDayPrecip['Sorted Daily Precip (mm)']
+#        IntrpltFunction = interp1d(IntrpltRtrnTime, IntrpltDayPrecip)
+#        PrecipDayRT = IntrpltFunction(SPDayReturnTime)
 print (PrecipDayRT)
 
 
