@@ -4,7 +4,6 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-#import datetime as dt
 #%%
 # **************************** Data Preparation ***************************** #
 SagehenMaurer = pd.read_csv('010343500_lump_maurer_forcing_leap.txt',skiprows=3,delim_whitespace=True)
@@ -99,32 +98,60 @@ SagRankEPFlow = np.column_stack((SagProbExcFlow, SagFlowSortedDrop))
 SagRankEPFlowDF = pd.DataFrame(SagRankEPFlow, columns = ['PEX', 'Q'])
 HapRankEPFlow = np.column_stack((HapProbExcFlow, HapFlowSortedDrop)) 
 HapRankEPFlowDF = pd.DataFrame(HapRankEPFlow, columns = ['PEX', 'Q'])       
-
+#%%
+# ************ Function of percent probability of exceedence **************** #
 #IndexPEXAll = np.where(SagRankEPFlowDF.PEX == SPEX)
 #IndexPEX = np.min (IndexPEXAll)
 #FlowPEXS = np.array(SagRankEPFlowDF['Q'][IndexPEX])
-SPEX = 0.9
-for k in range (len(SagRankEPFlowDF ['PEX'])):
-    if SPEX == SagRankEPFlowDF.PEX [k] :
-        FlowPEXS = np.array(SagRankEPFlowDF['Q'][k])
-        SagFlowPEX = np.mean(FlowPEXS)
-        break
-Holder1 = []
-for k in range (len(SagRankEPFlowDF ['PEX'])):
-    Holder1.append(SagRankEPFlowDF.PEX [k]-SPEX)
-    Holder2 = min (Holder1, key=lambda x:abs(x))
-    HolderPEX = Holder2 + SPEX
-    IndexPEX = SagRankEPFlowDF.PEX[SagRankEPFlowDF.PEX == HolderPEX].index.tolist()
-    FlowPEXS = np.array(SagRankEPFlowDF['Q'][IndexPEX])
-    MeanFlowPEXS = np.mean(FlowPEXS)
-if HolderPEX < SPEX :
-    MaxIndexPEX = max (IndexPEX, key=lambda y:abs(y))+1
-    FlowPELGS = np.array(SagRankEPFlowDF['Q'][MaxIndexPEX])
-    SagFlowPEX = (MeanFlowPEXS + FlowPELGS)/2
-elif HolderPEX > SPEX :
-    MinIndexPEX = min (IndexPEX, key=lambda y:abs(y))-1
-    FlowPELLS = np.array(SagRankEPFlowDF['Q'][MinIndexPEX])
-    SagFlowPEX = (MeanFlowPEXS + FlowPELLS)/2
+def ProbabilityOfExceedence (SPEX, QArray, PEXArray):
+    for k in range (len(QArray)):
+        if SPEX == PEXArray [k] :
+            FlowPEXS = np.array(QArray[k])
+            SagFlowPEX = np.mean(FlowPEXS)
+            break
+    Holder1 = []
+    for k in range (len(QArray)):
+        Holder1.append(PEXArray [k]-SPEX)
+        Holder2 = min (Holder1, key=lambda x:abs(x))
+        HolderPEX = Holder2 + SPEX
+        IndexPEX = PEXArray[PEXArray == HolderPEX].index.tolist()
+        FlowPEXS = np.array(QArray[IndexPEX])
+        MeanFlowPEXS = np.mean(FlowPEXS)
+    if HolderPEX < SPEX :
+        MaxIndexPEX = max (IndexPEX, key=lambda y:abs(y))+1
+        FlowPELGS = np.array(QArray[MaxIndexPEX])
+        SagFlowPEX = (MeanFlowPEXS + FlowPELGS)/2
+    elif HolderPEX > SPEX :
+        MinIndexPEX = min (IndexPEX, key=lambda y:abs(y))-1
+        FlowPELLS = np.array(QArray[MinIndexPEX])
+        SagFlowPEX = (MeanFlowPEXS + FlowPELLS)/2
+    return SagFlowPEX
+
+Slope =  (ProbabilityOfExceedence (0.25, SagRankEPFlowDF.Q, SagRankEPFlowDF.PEX) - ProbabilityOfExceedence (0.75, SagRankEPFlowDF.Q, SagRankEPFlowDF.PEX))/50
+
+#%%    
+#SPEX = 0.25
+#for k in range (len(SagRankEPFlowDF ['PEX'])):
+#    if SPEX == SagRankEPFlowDF.PEX [k] :
+#        FlowPEXS = np.array(SagRankEPFlowDF['Q'][k])
+#        SagFlowPEX = np.mean(FlowPEXS)
+#        break
+#Holder1 = []
+#for k in range (len(SagRankEPFlowDF ['PEX'])):
+#    Holder1.append(SagRankEPFlowDF.PEX [k]-SPEX)
+#    Holder2 = min (Holder1, key=lambda x:abs(x))
+#    HolderPEX = Holder2 + SPEX
+#    IndexPEX = SagRankEPFlowDF.PEX[SagRankEPFlowDF.PEX == HolderPEX].index.tolist()
+#    FlowPEXS = np.array(SagRankEPFlowDF['Q'][IndexPEX])
+#    MeanFlowPEXS = np.mean(FlowPEXS)
+#if HolderPEX < SPEX :
+#    MaxIndexPEX = max (IndexPEX, key=lambda y:abs(y))+1
+#    FlowPELGS = np.array(SagRankEPFlowDF['Q'][MaxIndexPEX])
+#    SagFlowPEX = (MeanFlowPEXS + FlowPELGS)/2
+#elif HolderPEX > SPEX :
+#    MinIndexPEX = min (IndexPEX, key=lambda y:abs(y))-1
+#    FlowPELLS = np.array(SagRankEPFlowDF['Q'][MinIndexPEX])
+#    SagFlowPEX = (MeanFlowPEXS + FlowPELLS)/2
 #%%
 # ********************** Calculating Baseflow Index ************************* #
 B = 0.925
